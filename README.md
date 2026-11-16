@@ -1,3 +1,63 @@
+# CrediYa - Microservicio de Autenticación (`autenticacion-crediya-ms`)
+
+Stack: Java 17, Spring Boot (Spring MVC), Spring Data JPA, H2, arquitectura hexagonal (scaffold Clean Architecture de Bancolombia).
+
+## HU1 - Registrar usuarios
+
+`POST /api/v1/usuarios`
+
+```json
+{
+  "nombres": "Juan José",
+  "apellidos": "Rendón Pérez",
+  "fecha_nacimiento": "2000-05-10",
+  "direccion": "Calle 10 # 20-30",
+  "telefono": "3001234567",
+  "correo_electronico": "juan@correo.com",
+  "documento_identidad": "1020304050",
+  "salario_base": 2500000
+}
+```
+
+| Respuesta | Cuándo |
+|---|---|
+| `201 Created` | Usuario registrado (header `Location: /api/v1/usuarios/{id}`) |
+| `400 Bad Request` (`USR-002`) | Campos obligatorios vacíos (nombres, apellidos, correo_electronico, salario_base), correo con formato inválido, salario fuera de 0 - 15.000.000, etc. Se listan todos los errores en `detalles` |
+| `400 Bad Request` (`GEN-400`) | JSON mal formado o tipos incorrectos (ej. `salario_base` no numérico) |
+| `409 Conflict` (`USR-003` / `USR-004`) | Correo o documento ya registrado |
+| `500` (`GEN-500`) | Error inesperado (sin exponer detalles internos) |
+
+Formato de error:
+
+```json
+{
+  "codigo": "USR-002",
+  "mensaje": "La información enviada no es válida",
+  "detalles": ["El campo salario_base debe estar entre 0 y 15000000"],
+  "ruta": "/api/v1/usuarios",
+  "timestamp": "2026-11-25T02:00:00Z"
+}
+```
+
+### Dónde está cada cosa
+
+- `domain/model` → `Usuario`, puertos `UsuarioRepository` y `TransaccionGateway`, `BusinessException` / `TipoError`.
+- `domain/usecase` → `RegistrarUsuarioUseCase` (orquesta) y `UsuarioValidador` (reglas de la HU).
+- `infrastructure/driven-adapters/jpa-repository` → entidad `UsuarioData`, `UsuarioRepositoryAdapter` y `JpaTransaccionAdapter` (`@Transactional`: verificar duplicados + guardar en una sola transacción).
+- `infrastructure/entry-points/api-rest` → `UsuarioController`, DTOs y `GlobalExceptionHandler`.
+
+### Ejecutar
+
+```bash
+./gradlew clean build        # compila y corre las pruebas
+./gradlew bootRun            # o ejecutar MainApplication
+```
+
+- Swagger: http://localhost:8080/v3/swagger-ui.html
+- Consola H2: http://localhost:8080/h2 (JDBC URL `jdbc:h2:file:./data/autenticacion-db`, usuario `sa`, sin clave)
+
+---
+
 # Proyecto Base Implementando Clean Architecture
 
 ## Antes de Iniciar

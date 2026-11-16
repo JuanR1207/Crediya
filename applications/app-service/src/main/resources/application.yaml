@@ -12,7 +12,8 @@ spring:
   profiles:
     include: null
   datasource:
-    url: "jdbc:h2:mem:test"
+    # Modo archivo: los usuarios quedan guardados aunque se reinicie la aplicación (carpeta ./data)
+    url: "jdbc:h2:file:./data/autenticacion-db;AUTO_SERVER=TRUE"
     username: "sa"
     password: ""
     driverClassName: "org.h2.Driver"
@@ -33,3 +34,6 @@ management:
         enabled: true
 cors:
   allowed-origins: "http://localhost:4200,http://localhost:8080"
+logging:
+  level:
+    co.com.bancolombia: DEBUG

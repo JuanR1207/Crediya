@@ -9,6 +9,8 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 
 import javax.sql.DataSource;
+import jakarta.persistence.EntityManagerFactory;
+import org.springframework.transaction.PlatformTransactionManager;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -64,6 +66,15 @@ class JpaConfigTest {
 
         final LocalContainerEntityManagerFactoryBean result =
                 jpaConfigUnderTest.entityManagerFactory(dataSource, "dialect");
+
+        assertNotNull(result);
+    }
+
+    @Test
+    void transactionManagerTest() {
+        EntityManagerFactory emf = Mockito.mock(EntityManagerFactory.class);
+
+        final PlatformTransactionManager result = jpaConfigUnderTest.transactionManager(emf);
 
         assertNotNull(result);
     }
